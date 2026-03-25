@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticker Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Sticker Generator</h1>
+            <p>Create your custom stickers in seconds!</p>
+        </header>
+
+        <div class="generator">
+            <!-- Canvas Area -->
+            <div class="canvas-section">
+                <div class="canvas-container">
+                    <canvas id="stickerCanvas" width="400" height="400"></canvas>
+                    <div class="canvas-overlay">
+                        <button id="downloadBtn" class="download-btn">⬇️ Download Sticker</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <div class="control-group">
+                    <label>Text:</label>
+                    <input type="text" id="stickerText" placeholder="Enter your text" maxlength="20">
+                </div>
+
+                <div class="control-group">
+                    <label>Font Size:</label>
+                    <input type="range" id="fontSize" min="20" max="80" value="50">
+                    <span id="fontSizeValue">50px</span>
+                </div>
+
+                <div class="control-group">
+                    <label>Text Color:</label>
+                    <input type="color" id="textColor" value="#ffffff">
+                </div>
+
+                <div class="control-group">
+                    <label>Background Color:</label>
+                    <input type="color" id="bgColor" value="#ff6b6b">
+                </div>
+
+                <div class="control-group">
+                    <label>Border Color:</label>
+                    <input type="color" id="borderColor" value="#000000">
+                </div>
+
+                <div class="control-group">
+                    <label>Emoji:</label>
+                    <input type="text" id="emojiInput" placeholder="🎉 Add emoji" maxlength="5">
+                    <button id="addEmoji">Add</button>
+                </div>
+
+                <div class="control-group full-width">
+                    <button id="generateBtn" class="generate-btn">✨ Generate Sticker</button>
+                    <button id="randomBtn" class="random-btn">🎲 Random</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('stickerCanvas');
+        const ctx = canvas.getContext('2d');
+        const stickerText = document.getElementById('stickerText');
+        const fontSize = document.getElementById('fontSize');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        const textColor = document.getElementById('textColor');
+        const bgColor = document.getElementById('bgColor');
+        const borderColor = document.getElementById('borderColor');
+        const emojiInput = document.getElementById('emojiInput');
+        const addEmoji = document.getElementById('addEmoji');
+        const generateBtn = document.getElementById('generateBtn');
+        const randomBtn = document.getElementById('randomBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let emojis = [];
+
+        // Update font size display
+        fontSize.addEventListener('input', () => {
+            fontSizeValue.textContent = fontSize.value + 'px';
+        });
+
+        // Add emoji
+        addEmoji.addEventListener('click', () => {
+            const emoji = emojiInput.value.trim();
+            if (emoji && emojis.length < 3) {
+                emojis.push(emoji);
+                emojiInput.value = '';
+                generateSticker();
+            }
+        });
+
+        // Generate sticker
+        function generateSticker() {
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Background
+            ctx.fillStyle = bgColor.value;
+            ctx.fillRect(0, 0, width, height);
+            
+            // Border
+            ctx.strokeStyle = borderColor.value;
+            ctx.lineWidth = 8;
+            ctx.strokeRect(4, 4, width - 8, height - 8);
+            
+            // Shadow effect
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 3;
+            ctx.shadowOffsetY = 3;
+            
+            // Main text
+            ctx.font = `bold ${fontSize.value}px Arial, sans-serif`;
+            ctx.fillStyle = textColor.value;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const text = stickerText.value || 'STICKER';
+            ctx.fillText(text.toUpperCase(), width/2, height/2);
+            
+            // Emojis
+            ctx.shadowBlur = 5;
+            emojis.forEach((emoji, index) => {
+                ctx.font = '60px Arial, sans-serif';
+                ctx.fillText(emoji, 
+                    width/2 - 60 + (index * 40), 
+                    height/2 + 40
+                );
+            });
+            
+            ctx.shadowBlur = 0; // Reset shadow
+        }
+
+        // Random sticker
+        randomBtn.addEventListener('click', () => {
+            const texts = ['HELLO!', 'COOL', 'WOW', 'FUN', 'LOL', 'YES'];
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b'];
+            
+            stickerText.value = texts[Math.floor(Math.random() * texts.length)];
+            bgColor.value = colors[Math.floor(Math.random() * colors.length)];
+            textColor.value = '#ffffff';
+            borderColor.value = '#333333';
+            fontSize.value = 30 + Math.floor(Math.random() * 40);
+            fontSizeValue.textContent = fontSize.value + 'px';
+            
+            emojis = [];
+            
+            generateSticker();
+        });
+
+        // Download sticker
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'my-sticker.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+
+        // Generate initial sticker
+        generateSticker();
+
+        // Real-time updates
+        stickerText.addEventListener('input', generateSticker);
+        fontSize.addEventListener('input', generateSticker);
+        textColor.addEventListener('input', generateSticker);
+        bgColor.addEventListener('input', generateSticker);
+        borderColor.addEventListener('input', generateSticker);
+        generateBtn.addEventListener('click', generateSticker);
+    </script>
+</body>
+</html>
